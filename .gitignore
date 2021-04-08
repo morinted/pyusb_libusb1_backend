@@ -1,0 +1,5 @@
+build
+dist
+*.egg-info
+*.code-workspace
+*.dylib
