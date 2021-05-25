@@ -72,6 +72,28 @@ elif sys.platform.startswith('linux'):
                        udev
                        pthread
                        '''.split())
+# Windows.
+elif sys.platform.startswith('win32'):
+    libusb_deps.extend('''
+                       {src}/os/events_windows.h
+                       {src}/os/threads_windows.h
+                       {src}/os/windows_common.h
+                       {src}/os/windows_usbdk.h
+                       {src}/os/windows_winusb.h
+                       {top}/msvc/config.h
+                       '''.split())
+    libusb_incs.insert(0, '{top}/msvc')
+    libusb_srcs.extend('''
+                       {src}/os/events_windows.c
+                       {src}/os/threads_windows.c
+                       {src}/os/windows_common.c
+                       {src}/os/windows_usbdk.c
+                       {src}/os/windows_winusb.c
+                       {src}/libusb-1.0.rc
+                       libusb_py_stub.c
+                       '''.split())
+    libusb_srcs.append('libusb_py_stub.c')
+    libusb_ldflags.append('/DEF:{src}/libusb-1.0.def')
 else:
     # Only build extension for supported platforms.
     build_libusb_extension = False

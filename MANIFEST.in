@@ -1,3 +1,4 @@
+include libusb_py_stub.c
 include tests/test_*.py
 exclude .gitmodules
 prune .github
