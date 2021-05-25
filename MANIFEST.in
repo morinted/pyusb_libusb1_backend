@@ -1,1 +1,2 @@
-include pyusb_libusb1_backend/*.dylib
+exclude .gitmodules
+prune libusb
