@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
+from distutils import log
 import os
+import subprocess
 import sys
 
 from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext
 
 
+cmdclass = {}
 ext_modules = []
 
 
@@ -49,6 +53,25 @@ if sys.platform.startswith('darwin'):
                           -Wl,-framework,IOKit
                           -Wl,-framework,CoreFoundation
                           '''.split())
+# Linux
+elif sys.platform.startswith('linux'):
+    libusb_deps.extend('''
+                       {src}/os/events_posix.h
+                       {src}/os/threads_posix.h
+                       {src}/os/linux_usbfs.h
+                       {top}/config.h
+                       '''.split())
+    libusb_incs.insert(0, '{top}')
+    libusb_srcs.extend('''
+                       {src}/os/events_posix.c
+                       {src}/os/threads_posix.c
+                       {src}/os/linux_udev.c
+                       {src}/os/linux_usbfs.c
+                       '''.split())
+    libusb_libs.extend('''
+                       udev
+                       pthread
+                       '''.split())
 else:
     # Only build extension for supported platforms.
     build_libusb_extension = False
@@ -71,7 +94,21 @@ if build_libusb_extension:
         extra_link_args=libusb_ldflags,
     )
 
+    class BuildExt(build_ext):
+
+        def build_extension(self, ext):
+            if ext is libusb_extension and sys.platform.startswith('linux'):
+                # Need to generate `config.h` for the Linux build.
+                if not os.path.exists(os.path.join(libusb_dir, 'configure')):
+                    log.info('running libusb bootstrap.sh')
+                    subprocess.check_call(('./bootstrap.sh'), cwd=libusb_dir)
+                if not os.path.exists(os.path.join(libusb_dir, 'config.h')):
+                    log.info('running libusb configure')
+                    subprocess.check_call(('./configure'), cwd=libusb_dir)
+            return build_ext.build_extension(self, ext)
+
+    cmdclass['build_ext'] = BuildExt
     ext_modules.append(libusb_extension)
 
 
-setup(ext_modules=ext_modules)
+setup(cmdclass=cmdclass, ext_modules=ext_modules)
