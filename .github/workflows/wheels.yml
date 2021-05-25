@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, ubuntu-latest]
 
     steps:
       - name: Checkout
@@ -34,7 +34,11 @@ jobs:
       - name: Build wheels
         env:
           CIBW_BUILD: "cp3?-*"
+          CIBW_SKIP: "*-manylinux_i686"
           CIBW_BUILD_VERBOSITY: "1"
+          CIBW_ENVIRONMENT_LINUX: "CFLAGS=-g0 LDFLAGS=-Wl,-strip-debug"
+          CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+          CIBW_BEFORE_ALL_LINUX: "yum install -y libudev-devel"
           CIBW_BEFORE_TEST: "pip install pytest"
           CIBW_TEST_COMMAND: "pytest {project}/tests"
         run: python -m cibuildwheel --output-dir wheelhouse
