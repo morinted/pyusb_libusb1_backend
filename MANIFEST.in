@@ -1,3 +1,4 @@
 include tests/test_*.py
 exclude .gitmodules
+prune .github
 prune libusb
