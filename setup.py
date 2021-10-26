@@ -52,6 +52,7 @@ if sys.platform.startswith('darwin'):
     libusb_ldflags.extend('''
                           -Wl,-framework,IOKit
                           -Wl,-framework,CoreFoundation
+                          -Wl,-framework,Security
                           '''.split())
 # Linux
 elif sys.platform.startswith('linux'):
