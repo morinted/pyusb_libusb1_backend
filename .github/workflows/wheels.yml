@@ -34,7 +34,7 @@ jobs:
       - name: Build wheels
         env:
           CIBW_BUILD: "cp3?-* cp31?-*"
-          CIBW_SKIP: "*-manylinux_i686 *-win32"
+          CIBW_SKIP: "*-manylinux_i686 *-win32 *-musllinux_*"
           CIBW_BUILD_VERBOSITY: "1"
           CIBW_ENVIRONMENT_LINUX: "CFLAGS=-g0 LDFLAGS=-Wl,-strip-debug"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
